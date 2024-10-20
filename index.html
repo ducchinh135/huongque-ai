@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trợ lý ảo Hương Quế</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=ww5IVhWH"></script>
+    <style>
+      /* CSS cho popup */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        z-index: 1000;
+      }
+      .popup.show {
+        display: block;
+      }
+      .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+      }
+      .popup-overlay.show {
+        display: block;
+      }
+
+      /* Typing loader animation */
+      .typing-container {
+        display: flex;
+        align-items: center;
+        font-style: italic;
+        color: #555;
+      }
+
+      .typing-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #555;
+        border-radius: 50%;
+        margin: 0 2px;
+        animation: typingDot 1.5s infinite ease-in-out;
+      }
+
+      .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes typingDot {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main
+      id="app"
+      class="relative min-h-screen py-8 bg-gray-100 sm:px-6 sm:p-8 bg-background"
+    >
+      <!-- Hình ảnh bên trái -->
+      <div class="fixed left-0 top-0 h-full w-[0%] sm:w-1/6 md:w-1/5 xl:w-1/4">
+        <img
+          src="./image/sanphamHQ1.jpg"
+          alt="Left Image"
+          class="object-cover w-full h-full"
+        />
+      </div>
+      <!-- Nội dung chính -->
+      <div
+        class="max-w-2xl mx-auto relative w-[100%] sm:w-[50%] md:w-[60%] lg:w-[60%] xl:w-[80%]"
+      >
+        <div class="relative">
+          <div class="flex items-center justify-center mb-4">
+            <h1 class="w-[80%] sm:w-[100%] text-3xl font-bold text-center pr-2">
+              Trợ lý ảo Hương Quế
+            </h1>
+            <img
+              class="w-14 h-14"
+              src="./image/logoHQ.png"
+              alt="ChatGPT Icon"
+            />
+          </div>
+          <!-- Button cài đặt -->
+          <!-- <button
+            @click="toggleSettingsPopup"
+            class="absolute p-2 text-gray-500 top-4 right-4 hover:text-gray-700"
+            aria-label="Cài đặt"
+          >
+            <i class="fas fa-cog fa-lg"></i>
+          </button> -->
+
+          <div class="p-1 bg-white rounded-lg shadow sm:p-6">
+            <div class="flow-root">
+              <div class="mt-2 mb-2 sm:mt-4">
+                <!-- Chat Messages -->
+                <ul>
+                  <li
+                    class="py-3 sm:py-4"
+                    v-for="message in messages"
+                    :key="message.id"
+                  >
+                    <div
+                      class="flex items-start gap-4"
+                      :class="messageClasses(message.role)"
+                    >
+                      <div
+                        v-if="message.role === 'user'"
+                        class="relative p-2 break-normal whitespace-pre-line bg-gray-100 rounded-lg shadow-md sm:p-4"
+                      >
+                        <span v-if="message.role === 'user'" class="font-bold"
+                          >Bạn:</span
+                        >
+                        {{ message.content }}
+                      </div>
+                      <div
+                        v-if="message.role === 'assistant'"
+                        class="flex-shrink-0"
+                      >
+                        <img
+                          class="w-8 h-8 rounded-full"
+                          src="./image/logoHQ.png"
+                          alt="ChatGPT Icon"
+                        />
+                      </div>
+                      <div
+                        v-if="message.role !== 'user'"
+                        class="flex-1 min-w-0"
+                      >
+                        <p
+                          class="text-sm text-gray-800 break-normal whitespace-pre-line"
+                        >
+                          <span
+                            v-if="message.role === 'assistant'"
+                            class="font-bold"
+                            >Trợ lý:
+                          </span>
+                          <span
+                            v-html="formatMessageWithLinks(message.content)"
+                          ></span>
+                        </p>
+                        <!-- Biểu tượng loa để đọc nội dung -->
+                        <button
+                          v-if="message.role === 'assistant'"
+                          @click="speakMessage(message.content)"
+                          class="text-gray-500 hover:text-gray-700 ml-2 text-[10px]"
+                          aria-label="Đọc nội dung"
+                        >
+                          <i class="fas fa-volume-up fa-lg"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </li>
+                  <!-- Typing Indicator -->
+                  <!-- <li v-if="isTyping" class="py-3 sm:py-4">
+                    <div
+                      class="flex items-center justify-start space-x-4 text-left"
+                    >
+                      <div class="flex-shrink-0">
+                        <img
+                          class="w-8 h-8 rounded-full"
+                          src="./image/Biểu_trưng_tỉnh_Bắc_Ninh.svg"
+                          alt="ChatGPT Icon"
+                        />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p class="typing-container">
+                          <span class="typing-dot"></span>
+                          <span class="typing-dot"></span>
+                          <span class="typing-dot"></span>
+                        </p>
+                      </div>
+                    </div>
+                  </li> -->
+                </ul>
+
+                <!-- Chat Input -->
+                <form @submit.prevent="sendMessage">
+                  <div class="flex space-y-2 sm:space-y-0 sm:space-x-3">
+                    <textarea
+                      v-model="userInput"
+                      placeholder="Điền câu hỏi của bạn..."
+                      class="flex-1 w-full h-auto p-2 mr-1 rounded-md shadow-sm resize-none"
+                      rows="1"
+                      @keyup.enter="sendMessage"
+                    ></textarea>
+                    <button
+                      type="submit"
+                      class="flex items-center px-4 py-2 text-black rounded-md bg-amber-200 hover:bg-amber-300"
+                    >
+                      <img
+                        class="w-4 h-4"
+                        src="./image/send-svgrepo-com.svg"
+                        alt="Send Icon"
+                      />
+                      Gửi
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Hình ảnh bên phải -->
+      <div class="fixed right-0 top-0 h-full w-[0%] sm:w-1/6 md:w-1/5 xl:w-1/4">
+        <img
+          src="./image/sanphamHQ2.jpg"
+          alt="Right Image"
+          class="object-cover w-full h-full"
+        />
+      </div>
+
+      <!-- Popup cài đặt -->
+      <div
+        class="popup-overlay"
+        :class="{ show: showPopup }"
+        @click="closeSettingsPopup"
+      ></div>
+      <div class="popup w-[50%]" :class="{ show: showPopup }">
+        <h2 class="mb-4 text-xl font-bold">Cài đặt</h2>
+        <textarea
+          v-model="settingsText"
+          class="w-full h-32 p-2 border border-gray-300 rounded-md"
+          placeholder="Nhập văn bản ở đây..."
+        ></textarea>
+        <div class="mt-4 text-right">
+          <button
+            @click="saveSettings"
+            class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          >
+            Xác nhận
+          </button>
+          <button
+            @click="closeSettingsPopup"
+            class="px-4 py-2 ml-2 text-white bg-gray-500 rounded-md hover:bg-gray-600"
+          >
+            Hủy
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const { createApp, ref, nextTick, computed } = Vue;
+
+      const apiKey = "app-wXpmjKnU0uOREHtZ5mapFl2h";
+
+      createApp({
+        setup() {
+          const userInput = ref("");
+          const messages = ref([]);
+          const isLoading = ref(false);
+          const showPopup = ref(false);
+          const settingsText = ref("");
+          const isFirstMessage = ref(true); // Biến cờ để theo dõi tin nhắn đầu tiên
+          const isTyping = ref(false); // Trạng thái gõ chữ
+          const conversationId = ref("");
+          const parentMessageId = ref("");
+
+          const messageClasses = (role) => ({
+            "text-right justify-end": role === "user",
+            "text-left justify-start": role === "assistant",
+          });
+
+          // Phương thức tạo cuộc trò chuyện
+          async function createConversation() {
+            try {
+              const response = await fetch(
+                "https://dify.phoenixtech.vn/v1/conversations/name",
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    name: "",
+                    user: "Dify",
+                  }),
+                }
+              );
+
+              const data = await response.json();
+              conversationId.value = data.id; // Lưu conversation_id
+              console.log(
+                "Created conversation with ID:",
+                conversationId.value
+              );
+            } catch (error) {
+              console.error("Error creating conversation:", error);
+            }
+          }
+
+          async function sendMessage() {
+            if (!userInput.value.trim()) return;
+
+            const contentInput = userInput.value;
+            userInput.value = "";
+
+            try {
+              // Append user message
+              messages.value.push({
+                role: "user",
+                content: contentInput,
+              });
+
+              //   Kiểm tra nếu đây là tin nhắn đầu tiên thì tạo cuộc trò chuyện
+              // if (!conversationId.value) {
+              //   await createConversation(); // Tạo cuộc trò chuyện mới
+              // }
+
+              // Add an initial message for the assistant
+              const allMessages = [
+                ...messages.value.map((msg) => ({
+                  role: msg.role,
+                  content: msg.content,
+                })),
+              ];
+
+              // Gửi tin nhắn sau khi đã tạo cuộc trò chuyện
+              const data = {
+                inputs: {}, // Chỉnh sửa nếu cần thiết cho các biến khác
+                query: contentInput, // Nội dung tin nhắn từ người dùng
+                response_mode: "streaming",
+                conversation_id: conversationId.value || "",
+                parent_message_id: parentMessageId.value || "",
+                user: "Dify", // Bạn có thể thay đổi giá trị này
+              };
+
+              const response = await fetch(
+                "https://dify.phoenixtech.vn/v1/chat-messages",
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(data),
+                }
+              );
+
+              userInput.value = "";
+
+              const reader = response.body.getReader();
+              const decoder = new TextDecoder();
+              let result = "";
+
+              console.log(reader);
+
+              // Add an initial message for the assistant
+              // Add an initial message for the assistant
+              const assistantMessageIndex = messages.value.length;
+              messages.value.push({
+                role: "assistant",
+                content: "",
+              });
+
+              // Process the streaming response
+              while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                result += decoder.decode(value, { stream: true });
+
+                // Process and update the content
+                const contentChunks = result
+                  .split("\n")
+                  .filter((line) => line.trim());
+
+                for (const chunk of contentChunks) {
+                  const jsonChunks = chunk
+                    .split("data: ")
+                    .filter((part) => part.trim());
+
+                  for (const jsonChunk of jsonChunks) {
+                    try {
+                      const data = JSON.parse(jsonChunk);
+
+                      switch (data.event) {
+                        case "agent_message":
+                          const content = data.answer || "";
+                          // Loại bỏ dấu *
+                          const textContent = content.replace(/\*/g, "");
+                          // Update the last assistant message with the new content
+                          const lastMessage =
+                            messages.value[assistantMessageIndex];
+                          lastMessage.content += textContent;
+
+                          nextTick(() => {
+                            // Cuộn xuống khi có tin nhắn mới
+                            const chatBox = document.querySelector(".chat-box");
+                            if (chatBox) {
+                              chatBox.scrollTop = chatBox.scrollHeight;
+                            }
+                          });
+                          break;
+
+                        case "agent_thought":
+                          console.log("Agent Thought:", data.thought);
+                          // Optionally handle agent thoughts
+                          break;
+
+                        case "tts_message":
+                          console.log("TTS Message:", data.audio);
+                          // Handle TTS message and play audio if needed
+                          break;
+
+                        case "tts_message_end":
+                          console.log("TTS Message End");
+                          // Handle the end of TTS message if needed
+                          break;
+
+                        case "message_end":
+                          console.log("Message End");
+                          isTyping.value = false;
+                          break;
+
+                        case "error":
+                          console.error("Error:", data.message);
+                          // Handle error event
+                          isTyping.value = false;
+                          break;
+
+                        case "message_file":
+                          // Handle file messages if needed
+                          break;
+
+                        case "message_replace":
+                          // Handle message replacement if needed
+                          break;
+
+                        default:
+                          console.log("Unknown event type:", data.event);
+                      }
+                      // Lưu conversation_id nếu chưa có
+                      if (!conversationId.value && data.conversation_id) {
+                        conversationId.value = data.conversation_id;
+                        console.log(
+                          "Lưu conversation_id:",
+                          conversationId.value
+                        );
+                      }
+
+                      // Lưu message_id để sử dụng cho parent_message_id ở tin nhắn tiếp theo
+                      if (data.message_id) {
+                        parentMessageId.value = data.message_id;
+                        console.log(
+                          "Cập nhật parentMessageId:",
+                          parentMessageId.value
+                        );
+                      }
+                    } catch (error) {
+                      console.error("Error parsing JSON chunk", error);
+                    }
+                  }
+                }
+
+                // Clear the result after processing
+                result = "";
+              }
+            } catch (error) {
+              console.error("There was an error with the API request", error);
+            } finally {
+              isLoading.value = false;
+              isTyping.value = false; // Kết thúc trạng thái gõ chữ
+            }
+          }
+
+          function speakMessage(message) {
+            if (window.responsiveVoice) {
+              responsiveVoice.speak(message, "Vietnamese Female"); // Bạn có thể thay đổi giọng đọc và ngôn ngữ theo nhu cầu
+            } else {
+              console.error("ResponsiveVoice is not loaded");
+            }
+          }
+
+          function toggleSettingsPopup() {
+            showPopup.value = !showPopup.value;
+          }
+
+          function closeSettingsPopup() {
+            showPopup.value = false;
+          }
+
+          function saveSettings() {
+            // Lưu giá trị từ textarea vào biến settingsText
+            settingsText.value = settingsText.value.trim();
+            console.log("settingsText.value", settingsText.value);
+            closeSettingsPopup();
+          }
+
+          function formatMessageWithLinks(content) {
+            // Decode HTML entities if content is encoded
+            content = content.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+
+            // Remove invalid or nested <a> tags
+            content = content.replace(/<a\s+href="<a\s+href="/g, '<a href="');
+            content = content.replace(/""\s*target="_blank".*?<\/a>/g, "");
+
+            // Handle Markdown links
+            content = content.replace(
+              /\[([^\]]+)\]\(([^)]+)\)/g,
+              (match, text, url) => {
+                const cleanUrl = url.trim().replace(/["']/g, "");
+                return `<a href="${cleanUrl}" target="_blank" class="text-blue-600 hover:underline">${text}</a>`;
+              }
+            );
+
+            // Handle plain URLs
+            const urlRegex = /https?:\/\/[^\s"<>]+[a-zA-Z0-9]/g;
+            content = content.replace(urlRegex, (url) => {
+              // Check if URL is already within an <a> tag
+              if (/<a.*?>.*?<\/a>/.test(content)) {
+                return url;
+              }
+              // Clean URL and return anchor tag
+              const cleanUrl = url.trim().replace(/["']/g, "");
+              return `<a href="${cleanUrl}" target="_blank" class="text-blue-600 hover:underline">${cleanUrl}</a>`;
+            });
+
+            // Handle bold Markdown (**text**)
+            content = content.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+            return content;
+          }
+
+          return {
+            formatMessageWithLinks,
+            userInput,
+            messages,
+            messageClasses,
+            sendMessage,
+            isLoading,
+            speakMessage,
+            toggleSettingsPopup,
+            closeSettingsPopup,
+            saveSettings,
+            showPopup,
+            settingsText,
+            isTyping,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
