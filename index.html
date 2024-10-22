@@ -6,20 +6,47 @@
     <title>AI Hương Quế</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out forwards;
+      }
+
+      .fade-out {
+        animation: fadeOut 0.3s ease-in-out forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+    </style>
   </head>
   <body>
     <div id="app">
       <div class="min-h-screen bg-gray-100">
-        <img
+        <!-- <img
           src="/image/bannerHQ.jpg"
           alt=""
           class="md:h-[60vh] w-full object-cover object-top"
-        />
+        /> -->
 
         <div
-          class="max-w-full px-4 py-12 mx-auto"
+          class="max-w-full min-h-screen px-4 py-12 mx-auto"
           style="
-            background-image: url(/image/bg-red.jpg);
+            background-image: url(/image/bg-blue.jpg);
             background-position: center;
             background-size: cover;
           "
@@ -27,20 +54,20 @@
           <!-- Màn hình chọn chủ đề -->
 
           <h1
-            class="pb-4 text-2xl font-bold text-center text-white md:text-4xl"
+            class="pb-4 text-2xl font-bold text-center text-[#0041ce] md:text-4xl font-sans"
           >
             HƯƠNG QUẾ AI
           </h1>
 
           <div
             v-if="!selectedTopic"
-            class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5"
+            class="grid grid-cols-2 gap-4 lg:grid-cols-4 fade-in"
           >
             <button
               v-for="(topic, key) in topics"
               :key="key"
               @click="selectTopic(key)"
-              class="flex flex-col items-center p-4 h-[220px] text-center text-white transition-colors duration-200 bg-[#6b0d1b] rounded-lg hover:bg-red-700"
+              class="flex flex-col items-center p-4 h-[220px] text-center text-white transition-transform duration-300 ease-in-out rounded-lg bg-gradient-to-r from-[#00035c] to-[#005af7] transform hover:scale-105"
             >
               <img
                 :src="topic.icon"
@@ -48,6 +75,44 @@
                 class="p-4 bg-white rounded-full w-[80px] object-contain mt-4"
               />
               <span class="mt-6 text-lg font-semibold">{{ topic.name }}</span>
+            </button>
+          </div>
+
+          <!-- Màn hình hiện gợi ý -->
+          <div
+            v-if="selectedTopic !== null"
+            class="p-6 bg-gray-100 rounded-lg shadow-lg fade-in"
+          >
+            <div class="flex items-center gap-4 mb-4">
+              <img
+                :src="topics[selectedTopic].icon"
+                :alt="topics[selectedTopic].name"
+                class="p-4 bg-white rounded-full w-[50px] h-[50px] object-contain"
+              />
+              <h2 class="text-2xl font-bold">
+                {{ topics[selectedTopic].name }}
+              </h2>
+            </div>
+            <div class="space-y-3">
+              <button
+                v-for="(suggestion, index) in topics[selectedTopic].suggestions"
+                :key="index"
+                @click="selectSuggestion(topics[selectedTopic].name)"
+                class="flex items-center w-full p-3 text-left transition-colors duration-300 bg-white rounded-lg hover:bg-gray-200"
+              >
+                <img
+                  :src="suggestion.image"
+                  :alt="suggestion.content"
+                  class="p-2 bg-gray-100 rounded-xl w-[60px] object-contain mr-2"
+                />
+                <span class="text-lg font-bold">{{ suggestion.content }}</span>
+              </button>
+            </div>
+            <button
+              @click="selectedTopic = null"
+              class="px-4 py-2 mt-6 transition-colors duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
+            >
+              Quay lại
             </button>
           </div>
         </div>
@@ -61,52 +126,227 @@
         setup() {
           const selectedTopic = ref(null);
           const topics = {
-            AI_XU_LY: {
-              name: "AI - Xử lý từ chối tuyển sỉ",
-              icon: "/image/phone-call-svgrepo-com.svg",
+            AI_TUYEN_SI: {
+              name: "AI Tuyển sỉ",
+              icon: "/image/tuyensi.svg",
+              suggestions: [
+                {
+                  image: "/image/tuyensi/kichban.svg",
+                  content: "Kịch bản tuyển sỉ",
+                },
+                {
+                  image: "/image/tuyensi/tuchoi.svg",
+                  content: "Xử lý từ chối tuyển sỉ",
+                },
+                {
+                  image: "/image/tuyensi/content.svg",
+                  content: "Content đăng bài tuyển sỉ 90 ngày",
+                },
+                {
+                  image: "/image/tuyensi/nghiencuu.svg",
+                  content: "Nghiên cứu đối thủ",
+                },
+                {
+                  image: "/image/tuyensi/camhung.svg",
+                  content: "Truyền cảm hứng cho đội nhóm",
+                },
+                {
+                  image: "/image/tuyensi/kehoach.svg",
+                  content: "Kế hoạch content",
+                },
+                {
+                  image: "/image/tuyensi/cauchuyen.svg",
+                  content: "Câu chuyện hệ thống",
+                },
+              ],
             },
-            AI_PHAP_LUAT: {
-              name: "AI - Pháp luật",
-              icon: "/image/trial-law-svgrepo-com.svg",
+            AI_BAN_HANG: {
+              name: "AI Bán hàng",
+              icon: "/image/banhang.svg",
+              suggestions: [
+                {
+                  image: "/image/tuyensi/kichban.svg",
+                  content: "Kịch bản bán hàng",
+                },
+                {
+                  image: "/image/tuyensi/tuchoi.svg",
+                  content: "Xử lý từ chối bán hàng",
+                },
+                {
+                  image: "/image/tuyensi/content.svg",
+                  content: "Content đăng bài 90 ngày bán hàng",
+                },
+                {
+                  image: "/image/tuyensi/nghiencuu.svg",
+                  content: "Nghiên cứu đối thủ",
+                },
+                {
+                  image: "/image/banhang/chamsoc.svg",
+                  content: "Chăm sóc khách hàng",
+                },
+                {
+                  image: "/image/banhang/feedback.svg",
+                  content: "Feedback khách hàng",
+                },
+              ],
             },
-            AI_KE_HOACH: {
-              name: "AI - Kế hoạch tuyển sỉ",
-              icon: "/image/plan-svgrepo-com.svg",
+            AI_SAN_PHAM: {
+              name: "AI Sản phẩm",
+              icon: "/image/sanpham.svg",
+              suggestions: [
+                {
+                  image: "/image/sanpham/thongtin.svg",
+                  content: "Thông tin sản phẩm",
+                },
+                {
+                  image: "/image/sanpham/cauhoi.svg",
+                  content: "Câu hỏi thường gặp",
+                },
+                {
+                  image: "/image/sanpham/phacdo.svg",
+                  content: "Phác đồ điều trị",
+                },
+              ],
             },
-            AI_KICH_BAN: {
-              name: "AI - Kịch bản tuyển sỉ",
-              icon: "/image/plan-idea-svgrepo-com.svg",
+            AI_CHIEN_lUOC: {
+              name: "AI Chiến lược kinh doanh",
+              icon: "/image/chienluoc.svg",
+              suggestions: [
+                {
+                  image: "/image/chienluoc/thuhut.svg",
+                  content: "Chiến lược thu hút khách hàng tiềm năng",
+                },
+                {
+                  image: "/image/chienluoc/doanhso.svg",
+                  content: "Chiến lược tăng doanh số ngay lập tức",
+                },
+                {
+                  image: "/image/chienluoc/quaylai.svg",
+                  content: "Chiến lược khách hàng quay lại",
+                },
+              ],
             },
-            AI_NGHIEN_CUU: {
-              name: "AI - Nghiên cứu đối thủ",
-              icon: "/image/magnifying-glass-search-svgrepo-com.svg",
+            AI_NGUOI_MOI: {
+              name: "AI Kinh doanh cho người mới",
+              icon: "/image/nguoimoi.svg",
+              suggestions: [
+                {
+                  image: "/image/nguoimoi/quytrinh.svg",
+                  content: "Quy trình các bước dành cho người mới",
+                },
+                {
+                  image: "/image/nguoimoi/chienluoc.svg",
+                  content: "Chiến lược ra đơn trong 10 ngày",
+                },
+                {
+                  image: "/image/nguoimoi/daotao.svg",
+                  content:
+                    "Đào tạo văn hóa- sản phẩm-bán hàng- thương hiệu cá nhân",
+                },
+                {
+                  image: "/image/nguoimoi/thuonghieu.svg",
+                  content: "Thương hiệu cá nhân",
+                },
+                {
+                  image: "/image/nguoimoi/lotrinh.svg",
+                  content: "Lộ trình học tập- phát triển",
+                },
+              ],
             },
-            AI_CONTENT: {
-              name: "AI - Content đăng bài tuyển sỉ 90 ngày",
-              icon: "/image/idea-bulb-light-svgrepo-com.svg",
+            AI_DOANH_NGHIEP: {
+              name: "AI Hồ sơ doanh nghiệp",
+              icon: "/image/hoso.svg",
+              suggestions: [
+                {
+                  image: "/image/doanhnghiep/gioithieu.svg",
+                  content:
+                    "Giới thiệu công ty: Tầm Nhìn sứ mệnh, giá trị cốt lõi",
+                },
+                {
+                  image: "/image/doanhnghiep/hopdong.svg",
+                  content: "Mẫu hợp đồng đại lý",
+                },
+                {
+                  image: "/image/doanhnghiep/vanhoa.svg",
+                  content: "Văn hóa công ty",
+                },
+                {
+                  image: "/image/doanhnghiep/noiquy.svg",
+                  content: "Nội quy công ty",
+                },
+                {
+                  image: "/image/doanhnghiep/hoatdong.svg",
+                  content: "Hoạt động công ty",
+                },
+              ],
             },
-            AI_TRUYEN_CAM_HUNG: {
-              name: "AI - Truyền cảm hứng cho đội nhóm",
-              icon: "/image/talking-svgrepo-com.svg",
+            AI_THUONG_HIEU: {
+              name: "AI Thương hiệu cá nhân",
+              icon: "/image/thuonghieu.svg",
+              suggestions: [
+                {
+                  image: "/image/thuonghieu/dinhvi.svg",
+                  content: "Định vị thương hiệu cá nhân",
+                },
+                {
+                  image: "/image/thuonghieu/kehoach.svg",
+                  content: "Bản kế hoạch",
+                },
+                {
+                  image: "/image/thuonghieu/content.svg",
+                  content: "Content thương hiệu cá nhân",
+                },
+                {
+                  image: "/image/thuonghieu/xaydung.svg",
+                  content: "Xây dựng thương hiệu cá nhân",
+                },
+              ],
             },
-            AI_PHAN_BAN_HANG: {
-              name: "AI - Phễu bán hàng tuyển sỉ",
-              icon: "/image/cloud-network-svgrepo-com.svg",
-            },
-            AI_KICH_NEO: {
-              name: "AI - Kích neo đội nhóm",
-              icon: "/image/network-share-svgrepo-com.svg",
-            },
-            AI_COACHING: {
-              name: "AI - Coaching mục tiêu",
-              icon: "/image/learning-head-book-education-svgrepo-com.svg",
+            AI_DAO_TAO: {
+              name: "AI Đào tạo",
+              icon: "/image/daotao.svg",
+              suggestions: [
+                {
+                  image: "/image/daotao/banhang.svg",
+                  content: "Đào tạo bán hàng",
+                },
+                {
+                  image: "/image/daotao/vanhoa.svg",
+                  content: "Đào tạo văn hóa",
+                },
+                {
+                  image: "/image/daotao/tuyensi.svg",
+                  content: "Đào tạo tuyển sỉ",
+                },
+                {
+                  image: "/image/thuonghieu/xaydung.svg",
+                  content: "Đào tạo thương hiệu cá nhân",
+                },
+                {
+                  image: "/image/daotao/plan.svg",
+                  content: "Đào tạo về mục tiêu và kế hoạch kinh doanh",
+                },
+                {
+                  image: "/image/daotao/chienluoc.svg",
+                  content: "Đào tạo Chiến lược kinh doanh",
+                },
+              ],
             },
           };
 
           const selectTopic = (key) => {
-            // selectedTopic.value = key;
+            selectedTopic.value = key;
+            // window.location.href = `chat.html?question=${encodeURIComponent(
+            //   key
+            // )}`;
+          };
+
+          const selectSuggestion = (suggestion) => {
+            // Xử lý khi người dùng chọn một gợi ý
+            console.log("Selected suggestion:", suggestion);
+            // Thêm code để gửi suggestion vào chat
             window.location.href = `chat.html?question=${encodeURIComponent(
-              key
+              suggestion
             )}`;
           };
 
@@ -114,6 +354,7 @@
             selectedTopic,
             topics,
             selectTopic,
+            selectSuggestion,
           };
         },
       }).mount("#app");

@@ -98,7 +98,7 @@
       id="app"
       class="relative min-h-screen py-8 bg-gray-100 sm:px-6 sm:p-8 bg-background"
       style="
-        background-image: url(/image/bg-red.jpg);
+        background-image: url(/image/bg-blue.jpg);
         background-position: center;
         background-repeat: repeat; /* Lặp lại hình ảnh */
         background-size: auto; /* Hoặc có thể sử dụng 'auto' */
@@ -125,7 +125,7 @@
         <div class="relative px-2">
           <div class="flex items-center justify-center mb-4">
             <h1
-              class="w-[80%] sm:w-[100%] text-3xl font-bold text-center pr-2 text-white"
+              class="w-[80%] sm:w-[100%] text-2xl font-bold text-center text-[#0041ce] md:text-4xl"
             >
               AI Hương Quế
             </h1>
@@ -194,14 +194,14 @@
                           ></span>
                         </p>
                         <!-- Biểu tượng loa để đọc nội dung -->
-                        <button
+                        <!-- <button
                           v-if="message.role === 'assistant'"
                           @click="speakMessage(message.content)"
                           class="text-gray-500 hover:text-gray-700 ml-2 text-[10px]"
                           aria-label="Đọc nội dung"
                         >
                           <i class="fas fa-volume-up fa-lg"></i>
-                        </button>
+                        </button> -->
                       </div>
                     </div>
                   </li>
@@ -217,13 +217,10 @@
                         class="flex-1 w-full h-auto p-2 mr-1 rounded-md shadow-sm resize-none"
                         rows="1"
                         @keyup.enter="sendMessage"
-                        @focus="showSuggestions = true; showAllSuggestions()"
+                        @focus="showAllSuggestions()"
                         @input="filterSuggestions"
                       ></textarea>
-                      <div
-                        v-if="showSuggestions && filteredSuggestions.length > 0"
-                        class="suggestions"
-                      >
+                      <div v-if="showSuggestions" class="suggestions">
                         <div
                           v-for="suggestion in filteredSuggestions"
                           :key="suggestion"
@@ -281,6 +278,7 @@
           const isTyping = ref(false);
           const conversationId = ref("");
           const parentMessageId = ref("");
+          const firstInput = ref(true);
 
           const urlParams = new URLSearchParams(window.location.search);
           const question = urlParams.get("question");
@@ -290,104 +288,82 @@
 
           function loadSuggestions() {
             switch (question) {
-              case "AI_XU_LY":
+              case "AI Tuyển sỉ":
                 suggestions.value = [
+                  "Cho tôi kịch bản tuyển sỉ của sản phẩm",
                   "Cho tôi cách xử lý lời từ chối khi tuyển sỉ",
-                  "Các mẫu câu từ chối thông dụng trong kinh doanh",
-                  "Cách giải thích khi không đáp ứng được yêu cầu của khách",
-                  "Kỹ năng xử lý tình huống từ chối khách hàng",
-                  "Quy trình xử lý đơn hàng không hợp lệ",
-                ];
-                break;
-              case "AI_PHAP_LUAT":
-                suggestions.value = [
-                  "Các quy định pháp lý về kinh doanh sỉ",
-                  "Thủ tục đăng ký kinh doanh cần thiết",
-                  "Quyền lợi và nghĩa vụ của đại lý",
-                  "Hướng dẫn về hợp đồng đại lý",
-                  "Chính sách bảo vệ quyền lợi khách hàng",
-                ];
-                break;
-              case "AI_KE_HOACH":
-                suggestions.value = [
-                  "Làm thế nào để lập kế hoạch tuyển đại lý hiệu quả?",
-                  "Các bước xây dựng chiến lược phát triển hệ thống",
-                  "Cách tính toán chỉ tiêu doanh số cho đại lý",
-                  "Phương pháp đánh giá tiềm năng thị trường",
-                  "Lập kế hoạch phát triển vùng thị trường mới",
-                ];
-                break;
-              case "AI_KICH_BAN":
-                suggestions.value = [
-                  "Cho tôi cách nghiên cứu chiến lược tuyển sỉ của đối thủ",
-                  "Cách trình bày về sản phẩm và chính sách đại lý",
-                  "Xử lý các câu hỏi thường gặp từ khách hàng",
-                  "Kịch bản đàm phán điều khoản hợp tác",
-                  "Các bước chốt hợp đồng đại lý",
-                ];
-                break;
-              case "AI_NGHIEN_CUU":
-                suggestions.value = [
-                  "Phân tích điểm mạnh điểm yếu của đối thủ cạnh tranh",
-                  "So sánh chính sách bán hàng với đối thủ",
-                  "Cách thu thập thông tin về đối thủ",
-                  "Chiến lược cạnh tranh hiệu quả",
-                  "Xây dựng lợi thế cạnh tranh bền vững",
-                ];
-                break;
-              case "AI_CONTENT":
-                suggestions.value = [
-                  "Tạo nội dung quảng cáo tuyển đại lý hấp dẫn",
                   "Cho tôi kịch bản tuyển sỉ trong 90 ngày",
-                  "Các mẫu bài viết tuyển đại lý hiệu quả",
-                  "Chiến lược đăng bài trên các kênh social media",
-                  "Tối ưu nội dung cho từng nền tảng",
+                  "Cho tôi cách nghiên cứu chiến lược tuyển sỉ của đối thủ",
+                  "Cho tôi kịch bản content tuyển sỉ",
+                  "Hãy viết cho tôi câu chuyện thành công trong đội nhóm",
                 ];
                 break;
-              case "AI_TRUYEN_CAM_HUNG":
+              case "AI Bán hàng":
                 suggestions.value = [
-                  "Cách tạo động lực cho đội ngũ bán hàng",
-                  "Xây dựng văn hóa đội nhóm tích cực",
-                  "Tổ chức các hoạt động team building hiệu quả",
-                  "Kỹ năng lãnh đạo và truyền cảm hứng",
-                  "Phát triển tinh thần đồng đội",
+                  "Cho tôi kịch bản bán hàng sản phẩm",
+                  "Cho tôi các xử lý lời từ chối khi bán hàng",
+                  "Cho tôi kịch bản bán hàng trong 90 ngày",
+                  "Cho tôi cách nghiên cứu chiến lược bán hàng của đối thủ",
+                  "Cho tôi kịch bản content bán hàng",
+                  "Hãy viết cho tôi cách chăm sóc khách hàng",
+                  "Cho tôi cách xử lý khiếu nại khách hàng",
                 ];
                 break;
-              case "AI_PHAN_BAN_HANG":
+              case "AI Sản phẩm":
                 suggestions.value = [
-                  "Xây dựng phễu bán hàng chuyên nghiệp",
-                  "Các bước trong quy trình chuyển đổi khách hàng",
-                  "Tối ưu hóa tỷ lệ chuyển đổi",
-                  "Quản lý và theo dõi hiệu quả phễu bán hàng",
-                  "Chiến lược nurturing leads hiệu quả",
+                  "Cho tôi thông tin của sản phẩm",
+                  "Cho tôi cách nghiên cứu thị trường sản phẩm",
+                  "Cho tôi cách tính toán giá thành sản phẩm",
+                  "Cho tôi cách tính toán giá bán sản phẩm",
+                  "Cho tôi cách tính toán chỉ tiêu doanh số cho sản phẩm",
                 ];
                 break;
-              case "AI_KICH_NEO":
+              case "AI Chiến lược kinh doanh":
                 suggestions.value = [
-                  "Thiết lập mục tiêu và KPI cho đội ngũ",
-                  "Cách tạo động lực thông qua mục tiêu",
-                  "Xây dựng hệ thống thưởng phạt hiệu quả",
-                  "Đánh giá và phát triển năng lực nhân viên",
-                  "Quản lý hiệu suất đội nhóm",
+                  "Cho tôi kế hoạch chiến lược thu hút khách hàng tiềm năng",
+                  "Cho tôi chiến lược tăng doanh số ngay lập tức",
+                  "Cho tôi chiến lược để khách hàng quay lại mua hàng",
+                  "Cho tôi chiến lược tăng doanh số trong 90 ngày",
                 ];
                 break;
-              case "AI_COACHING":
+              case "AI Kinh doanh cho người mới":
                 suggestions.value = [
-                  "Phương pháp coaching hiệu quả",
-                  "Kỹ năng đặt câu hỏi và lắng nghe",
-                  "Thiết lập và theo dõi mục tiêu cá nhân",
-                  "Phát triển kế hoạch hành động",
-                  "Đánh giá và điều chỉnh mục tiêu",
+                  "Cho tôi biết quy trình các bước dành cho người mới",
+                  "Cho tôi chiến lược ra đơn trong 110 ngày",
+                  "Cho tôi biết cách đào tạo văn hóa - sản phẩm - bán hàng - thương hiệu cá nhân",
+                  "Cho tôi biết cách xây thương hiệu cá nhân",
+                  "Cho tôi biết lộ trình học tập - phát triển",
+                ];
+                break;
+              case "AI Hồ sơ doanh nghiệp":
+                suggestions.value = [
+                  "Giới thiệu công ty: Tầm Nhìn sứ mệnh, giá trị cốt lõi",
+                  "Cho tôi biết văn hóa công ty",
+                  "Cho tôi biết sản phẩm của công ty",
+                  "Cho tôi biết thương hiệu của công ty",
+                  "Cho tôi biết lịch sử hình thành và phát triển của công ty",
+                ];
+                break;
+              case "AI Thương hiệu cá nhân":
+                suggestions.value = [
+                  "Cho tôi biết cách định vị thương hiệu cá nhân",
+                  "Cho tôi biết cách xây dựng thương hiệu cá nhân",
+                  "Cho tôi biết cách phát triển thương hiệu cá nhân",
+                  "Cho tôi biết cách tạo ra nội dung thương hiệu cá nhân",
+                ];
+                break;
+              case "AI Đào tạo":
+                suggestions.value = [
+                  "Cho tôi cách đào tạo bán hàng",
+                  "Cho tôi cách đào tạo văn hóa",
+                  "Cho tôi cách đào tạo tuyển sỉ",
+                  "Cho tôi cách đào tạo thương hiệu cá nhân",
+                  "Cho tôi cách đào tạo về mục tiêu và kế hoạch kinh doanh",
                 ];
                 break;
               default:
                 // Default suggestions if question does not match predefined categories
-                suggestions.value = [
-                  "What is the capital of France?",
-                  "How do I cook rice?",
-                  "What is the weather like today?",
-                  "Tell me a joke.",
-                ];
+                suggestions.value = [];
             }
 
             // Show all suggestions initially
@@ -398,19 +374,26 @@
 
           // Filter suggestions based on user input
           function filterSuggestions() {
-            if (!userInput.value.trim()) {
-              filteredSuggestions.value = suggestions.value; // Show all if input is empty
-              return;
+            if (firstInput.value) {
+              if (!userInput.value.trim()) {
+                filteredSuggestions.value = suggestions.value; // Show all if input is empty
+                return;
+              }
+              filteredSuggestions.value = suggestions.value.filter(
+                (suggestion) =>
+                  suggestion
+                    .toLowerCase()
+                    .includes(userInput.value.toLowerCase())
+              );
             }
-            filteredSuggestions.value = suggestions.value.filter((suggestion) =>
-              suggestion.toLowerCase().includes(userInput.value.toLowerCase())
-            );
           }
           // Show all suggestions when input is focused
           function showAllSuggestions() {
-            console.log("Showing all suggestions");
-            filteredSuggestions.value = [...suggestions.value];
-            showSuggestions.value = true;
+            if (firstInput.value) {
+              console.log("Showing all suggestions");
+              filteredSuggestions.value = [...suggestions.value];
+              showSuggestions.value = true;
+            }
           }
 
           // Select a suggestion
@@ -439,6 +422,7 @@
           // Mount event listener to detect outside clicks
           onMounted(() => {
             loadSuggestions();
+            showSuggestions.value = true;
             document.addEventListener("click", handleClickOutside);
           });
 
@@ -605,6 +589,8 @@
                           parentMessageId.value
                         );
                       }
+
+                      firstInput.value = false;
                     } catch (error) {
                       console.error("Error parsing JSON chunk", error);
                     }
